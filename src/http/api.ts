@@ -7,6 +7,4 @@ export const login = (credentials: Credentials) => {
 return api.post('/auth/login', credentials);
 }
 
-export const register = (credentials: Credentials) => {
-return api.post('/auth/register', credentials);
-}
+export const self = () => api.get('/auth/self');

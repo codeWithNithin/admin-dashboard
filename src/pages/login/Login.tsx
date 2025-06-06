@@ -11,9 +11,9 @@ import {
 } from "antd";
 import { LockFilled, LockOutlined, UserOutlined } from "@ant-design/icons";
 import Logo from "../../components/icons/Logo";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Credentials } from "../../types";
-import { login } from "../../http/api";
+import { login, self } from "../../http/api";
 
 const loginUser = async (credentials: Credentials) => {
   // server call logic
@@ -21,12 +21,27 @@ const loginUser = async (credentials: Credentials) => {
   return data;
 };
 
+const getSelf = async () => {
+  const { data } = await self();
+  return data;
+};
+
 const LoginPage = () => {
+  const { data: currentUser, refetch } = useQuery({
+    queryKey: ["self"],
+    queryFn: getSelf,
+    enabled: false,
+  });
+
   const { mutate, isPending, isError, error } = useMutation({
     mutationKey: ["login"],
     mutationFn: loginUser,
     onSuccess: () => {
-      console.log("Login success");
+      // get self data
+      refetch();
+      // store in the data
+      console.log("user data", currentUser);
+      console.log('Login Successful');
     },
   });
 
@@ -66,7 +81,13 @@ const LoginPage = () => {
               console.log(values);
             }}
           >
-            {isError && <Alert style={{marginBottom: 24}} type="error" message={error?.message} />}
+            {isError && (
+              <Alert
+                style={{ marginBottom: 24 }}
+                type="error"
+                message={error?.message}
+              />
+            )}
 
             <Form.Item
               name="username"
