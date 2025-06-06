@@ -30,12 +30,20 @@ const getSelf = async () => {
 
 const LoginPage = () => {
   const { setUser, logout: logoutFromStore } = useAuthStore();
-   const {isAllowed}  = userPermission()
+  const { isAllowed } = userPermission();
 
   const { refetch } = useQuery({
     queryKey: ["self"],
     queryFn: getSelf,
     enabled: false,
+  });
+
+  const { mutate: logoutMutate } = useMutation({
+    mutationKey: ["logout"],
+    mutationFn: logout,
+    onSuccess: () => {
+      logoutFromStore();
+    },
   });
 
   const { mutate, isPending, isError, error } = useMutation({
@@ -44,16 +52,14 @@ const LoginPage = () => {
     onSuccess: async () => {
       // get self data
       const selfData = await refetch();
-
       const userData = selfData.data;
 
       //  if role == customer or Admin, then logout
-      if(!isAllowed(userData.role)) {
-        logout()
-        logoutFromStore()
+      if (!isAllowed(userData)) {
+        logoutMutate();
         return;
       }
-       
+
       // store in the data
       setUser(userData);
     },
