@@ -3,6 +3,7 @@ import { self } from "../http/api";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../store";
 import { useEffect } from "react";
+import { AxiosError } from "axios";
 
 const getSelf = async () => {
   const { data } = await self();
@@ -14,10 +15,18 @@ const Root = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["self"],
     queryFn: getSelf,
+    retry: (failureCount, err) => {
+      // dont call self endpoint if status code is 401, else call 3 times and stop.
+      if (err instanceof AxiosError && err.response?.status === 401) {
+        return false;
+      }
+
+      return failureCount < 3;
+    },
   });
 
   useEffect(() => {
-    console.log('data:', data)
+    console.log("data:", data);
     if (data) {
       setUser(data);
     }
