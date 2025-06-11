@@ -23,39 +23,50 @@ import { logout } from "../http/api";
 
 const { Sider, Header, Content, Footer } = Layout;
 
-const baseItems = [
-  {
-    key: "/",
-    icon: <Icon component={Home} />,
-    label: <NavLink to="/">Home</NavLink>,
-  },
+const getMenuItems = (role: string) => {
+  const baseItems = [
+    {
+      key: "/",
+      icon: <Icon component={Home} />,
+      label: <NavLink to="/">Home</NavLink>,
+    },
 
-  {
-    key: "/products",
-    icon: <Icon component={foodIcon} />,
-    label: <NavLink to="/products">Products</NavLink>,
-  },
-  {
-    key: "/orders",
-    icon: <Icon component={BasketIcon} />,
-    label: <NavLink to="/orders">Orders</NavLink>,
-  },
-  {
-    key: "/promos",
-    icon: <Icon component={GiftIcon} />,
-    label: <NavLink to="/promos">Promos</NavLink>,
-  },
-  {
-    key: "/restaurants",
-    icon: <Icon component={foodIcon} />,
-    label: <NavLink to="/restaurants">Restaurants</NavLink>,
-  },
-  {
-    key: "/users",
-    icon: <Icon component={UserIcon} />,
-    label: <NavLink to="/users">Users</NavLink>,
-  },
-];
+    {
+      key: "/products",
+      icon: <Icon component={foodIcon} />,
+      label: <NavLink to="/products">Products</NavLink>,
+    },
+    {
+      key: "/orders",
+      icon: <Icon component={BasketIcon} />,
+      label: <NavLink to="/orders">Orders</NavLink>,
+    },
+    {
+      key: "/promos",
+      icon: <Icon component={GiftIcon} />,
+      label: <NavLink to="/promos">Promos</NavLink>,
+    },
+    {
+      key: "/restaurants",
+      icon: <Icon component={foodIcon} />,
+      label: <NavLink to="/restaurants">Restaurants</NavLink>,
+    },
+  ];
+
+  if (role === "admin") {
+    const items = [...baseItems];
+
+    items.splice(1, 0, {
+      key: "/users",
+      icon: <Icon component={UserIcon} />,
+      label: <NavLink to="/users">Users</NavLink>,
+    });
+
+    return items;
+  }
+
+  return baseItems;
+};
 
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -75,6 +86,8 @@ const Dashboard = () => {
   } = theme.useToken();
 
   const { user } = useAuthStore();
+
+  const baseItems = getMenuItems(user?.role as string);
 
   if (user === null) return <Navigate to="/auth/login" replace={true} />;
 
