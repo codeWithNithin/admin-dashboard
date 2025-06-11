@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Drawer, Space, Table } from "antd";
+import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from "antd";
 import { PlusOutlined, RightOutlined } from "@ant-design/icons";
 import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import type { User } from "../../types";
 import { useAuthStore } from "../../store";
 import UserFilters from "./UserFilters";
 import { useState } from "react";
+import UserForm from "./forms/UserForm";
 
 const columns = [
   {
@@ -46,6 +47,10 @@ const columns = [
 const Users = () => {
   const { user } = useAuthStore();
   const [openDrawer, setOpenDrawer] = useState(false);
+
+  const {
+    token: { colorBgLayout },
+  } = theme.useToken();
 
   const {
     data: users,
@@ -99,6 +104,7 @@ const Users = () => {
           closable={{ "aria-label": "Close Button" }}
           open={openDrawer}
           destroyOnClose={true}
+          styles={{ body: { backgroundColor: colorBgLayout } }}
           width={720}
           onClose={() => {
             setOpenDrawer(false);
@@ -110,7 +116,11 @@ const Users = () => {
               <Button type="primary"> Submit </Button>
             </Space>
           }
-        ></Drawer>
+        >
+          <Form layout="vertical">
+            <UserForm />
+          </Form>
+        </Drawer>
 
         <Table columns={columns} dataSource={users} rowKey={"id"} />
       </Space>
