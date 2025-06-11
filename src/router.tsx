@@ -5,6 +5,7 @@ import Dashboard from "./layouts/Dashboard";
 import NonAuth from "./layouts/NonAuth";
 import Root from "./layouts/Root";
 import Users from "./pages/Users/Users";
+import Restoraunts from "./pages/Restoraunts/Restoraunts";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
             path: "users",
             element: <Users />,
           },
+          {
+            path: 'restoraunts',
+            element: <Restoraunts />
+          }
         ],
       },
       {
