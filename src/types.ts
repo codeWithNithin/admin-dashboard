@@ -3,11 +3,10 @@ export type Credentials = {
   password: string;
 };
 
-export type CurrentUserData = {
+export type User = {
+  id: number;
   email: string;
+  createdAt: string;
   firstName: string;
   lastName: string;
-  password: string;
-  role: string;
-  tenantId: number;
 };

@@ -1,54 +1,27 @@
-import { Breadcrumb, Table, type TableProps } from "antd";
+import { Breadcrumb, Space, Table } from "antd";
 import { RightOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getAllUsers } from "../../http/api";
+import type { User } from "../../types";
 
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
-
-const data: DataType[] = [
+const columns = [
   {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
+    title: "ID",
+    dataIndex: "id",
+    key: "id",
   },
   {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-];
-
-const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "user name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-  },
-  {
-    title: "Role",
-    dataIndex: "role",
-    key: "role",
+    title: "Name",
+    dataIndex: "firstName",
+    key: "firstName",
+    render: (_text: string, record: User) => {
+      return (
+        <div>
+          {record.firstName} {record.lastName}
+        </div>
+      );
+    },
   },
   {
     title: "Email",
@@ -56,27 +29,50 @@ const columns: TableProps<DataType>["columns"] = [
     key: "email",
   },
   {
-    title: "Created At",
+    title: "Role",
+    dataIndex: "role",
+    key: "role",
+  },
+  {
+    title: "Created at",
     dataIndex: "createdAt",
     key: "createdAt",
   },
 ];
 
 const Users = () => {
+  const {
+    data: users,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => {
+      console.log(getAllUsers().then((res) => res.data));
+      return getAllUsers().then((res) => res.data);
+    },
+  });
   return (
     <div>
-      <Breadcrumb
-        separator={<RightOutlined />}
-        items={[
-          {
-            title: <Link to='/'>Dashboard</Link>
-          },
-          {
-            title: "Users",
-          },
-        ]}
-      />
-      <Table<DataType> columns={columns} dataSource={data} />
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Breadcrumb
+          separator={<RightOutlined />}
+          items={[
+            {
+              title: <Link to="/">Dashboard</Link>,
+            },
+            {
+              title: "Users",
+            },
+          ]}
+        />
+
+        {isLoading && <div> Loading... </div>}
+        {isError && <div> {error.message} </div>}
+
+        <Table columns={columns} dataSource={users} />
+      </Space>
     </div>
   );
 };
