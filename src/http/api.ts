@@ -1,6 +1,6 @@
 // Auth servie endpoint
 
-import type { Credentials } from "../types";
+import type { CreateUserData, Credentials } from "../types";
 import { api } from "./client";
 
 // authentication
@@ -13,6 +13,7 @@ export const logout = () => api.post("/auth/logout");
 
 // users
 export const getAllUsers = () => api.get("/users");
+export const createUser = (params: CreateUserData) => api.post('/users', params)
 
 // tenants or restoraunts
 export const getAllRestoraunts = () => api.get("/tenants");
