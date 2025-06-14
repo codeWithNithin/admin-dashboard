@@ -1,12 +1,11 @@
-import { Card, Col, Input, Row, Select } from "antd";
+import { Card, Col, Form, Input, Row, Select } from "antd";
 
 type UserFilterProps = {
-  onFilterChange: (filterName: string, filterValue: string) => void;
   // onAddUserBtnClick: (openDrawer: boolean) => void;
   children?: React.ReactNode;
 };
 
-const UserFilters = ({ onFilterChange, children }: UserFilterProps) => {
+const UserFilters = ({ children }: UserFilterProps) => {
   return (
     <Card>
       <Row justify="space-between">
@@ -14,42 +13,36 @@ const UserFilters = ({ onFilterChange, children }: UserFilterProps) => {
         <Col span={16}>
           <Row gutter={16}>
             <Col span={8}>
-              <Input.Search
-                allowClear={true}
-                placeholder="search users"
-                onChange={(e) => {
-                  onFilterChange("userSearchQuery", e.target.value);
-                }}
-              />
+              <Form.Item name="q">
+                <Input.Search allowClear={true} placeholder="search users" />
+              </Form.Item>
             </Col>
             <Col span={8}>
-              <Select
-                title="Role"
-                style={{ width: "100%" }}
-                placeholder="Role"
-                allowClear={true}
-                onChange={(selectedItem) => {
-                  onFilterChange("roleDropdown", selectedItem);
-                }}
-              >
-                <Select.Option value="admin">Admin</Select.Option>
-                <Select.Option value="manager">Manager</Select.Option>
-                <Select.Option value="customer">Customer</Select.Option>
-              </Select>
+              <Form.Item name='role'>
+                <Select
+                  title="Role"
+                  style={{ width: "100%" }}
+                  placeholder="Role"
+                  allowClear={true}
+                >
+                  <Select.Option value="admin">Admin</Select.Option>
+                  <Select.Option value="manager">Manager</Select.Option>
+                  <Select.Option value="customer">Customer</Select.Option>
+                </Select>
+              </Form.Item>
             </Col>
             <Col span={8}>
-              <Select
-                title="Role"
-                style={{ width: "100%" }}
-                placeholder="status"
-                onChange={(selectedItem) => {
-                  onFilterChange("statusDropdown", selectedItem);
-                }}
-              >
-                <Select.Option value="ban">Ban</Select.Option>
-                <Select.Option value="active">Active</Select.Option>
-                <Select.Option value="valid">Valid</Select.Option>
-              </Select>
+              {/* <Form.Item>
+                <Select
+                  title="Role"
+                  style={{ width: "100%" }}
+                  placeholder="status"
+                >
+                  <Select.Option value="ban">Ban</Select.Option>
+                  <Select.Option value="active">Active</Select.Option>
+                  <Select.Option value="valid">Valid</Select.Option>
+                </Select>
+              </Form.Item> */}
             </Col>
           </Row>
         </Col>

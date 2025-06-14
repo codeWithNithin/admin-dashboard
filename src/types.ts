@@ -14,13 +14,18 @@ export type User = {
 export type Tenant = {
   id: number;
   name: string;
-  address: string
-}
+  address: string;
+};
 
 export type CreateUserData = {
   firstName: string;
   lastName: string;
   role: string;
   password: string;
-  tenantId: number
-}
+  tenantId: number;
+};
+
+export type FieldData = {
+  name: string[];
+  value?: string;
+};
