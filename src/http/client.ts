@@ -36,7 +36,6 @@ api.interceptors.response.use(
         //  pass the entire request and headers to the previosly called api
         return api.request({ ...originalRequest, headers });
       } catch (err) {
-        console.log(err);
         useAuthStore.getState().logout();
         return Promise.reject(err);
       }

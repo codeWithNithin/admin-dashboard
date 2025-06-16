@@ -92,7 +92,6 @@ const Users = () => {
     queryFn: () => {
       const filteredParams = Object.fromEntries(
         Object.entries(queryParams).filter((item) => {
-          console.log("item in entries", item);
           return !!item[1];
         })
       );
@@ -130,7 +129,6 @@ const Users = () => {
   }, []);
 
   const onFilterChange = (changedFields: FieldData[]) => {
-    console.log(changedFields);
     const changedFilterFields = changedFields
       .map((item) => {
         return {
@@ -194,8 +192,6 @@ const Users = () => {
           onClose={() => {
             setOpenDrawer(false);
             form.resetFields();
-
-            console.log("closing...");
           }}
           extra={
             <Space>
@@ -232,7 +228,6 @@ const Users = () => {
               setQueryParams({ ...queryParams, currentPage: page });
             },
             showTotal: (total: number, range: number[]) => {
-              console.log(total, range);
               return `Showing ${range[0]}-${range[1]} of ${total} items`;
             },
           }}

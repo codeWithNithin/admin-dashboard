@@ -98,7 +98,6 @@ const LoginPage = () => {
             initialValues={{ remember: true }}
             onFinish={(values) => {
               mutate({ email: values.username, password: values.password });
-              console.log(values);
             }}
           >
             {isError && (

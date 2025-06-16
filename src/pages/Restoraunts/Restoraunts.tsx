@@ -80,7 +80,6 @@ const Restoraunts = () => {
           title="Create Restroraunt"
           onClose={() => {
             setOpenDrawer(false);
-            console.log("closing...");
           }}
           open={openDrawer}
           extra={
