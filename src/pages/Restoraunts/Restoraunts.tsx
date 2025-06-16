@@ -1,11 +1,13 @@
-import { Breadcrumb, Button, Drawer, Space, Table } from "antd";
-import { PlusOutlined, RightOutlined } from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
-import { getAllRestoraunts } from "../../http/api";
+import { Breadcrumb, Button, Drawer, Form, Space, Spin, Table, theme } from "antd";
+import { LoadingOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { createRestoraunt, getAllRestoraunts } from "../../http/api";
 import RestroFilter from "./RestroFilter";
 import { useState } from "react";
 import { useAuthStore } from "../../store";
 import { Navigate } from "react-router-dom";
+import RestorauntForm from "./forms/RestorauntForm";
+import type { CreateRestorauntData } from "../../types";
 
 const columns = [
   {
@@ -34,17 +36,47 @@ const Restoraunts = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const { user } = useAuthStore();
 
+  const [restorauntForm] = Form.useForm();
+  const [filterForm] = Form.useForm();
+
+  const {
+    token: { colorBgLayout },
+  } = theme.useToken();
+
   const {
     data: restoraunts,
     isError,
     error,
-    isLoading,
+    isFetching,
   } = useQuery({
     queryKey: ["tenants"],
     queryFn: () => {
       return getAllRestoraunts().then((res) => res.data);
     },
+    placeholderData: keepPreviousData,
   });
+
+  const { mutate: createUserMutate } = useMutation({
+    mutationKey: ["createTenant"],
+    mutationFn: async (data: CreateRestorauntData) => {
+      return createRestoraunt(data).then((res) => res.data);
+    },
+  });
+
+  const onFormSubmit = async () => {
+    await restorauntForm.validateFields();
+
+    // call the data to api
+    createUserMutate(restorauntForm.getFieldsValue());
+
+    // clear the fields
+    restorauntForm.resetFields();
+
+    // close the drawer
+    setOpenDrawer(false);
+  };
+
+  const onFilterChange = () => {};
 
   if (user?.role !== "admin") return <Navigate to="/" replace={true} />;
 
@@ -56,39 +88,59 @@ const Restoraunts = () => {
           <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
           <Breadcrumb.Item> Restoraunts </Breadcrumb.Item>
         </Breadcrumb>
-        {isLoading && <div> Loading... </div>}
+        {isFetching && (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+        )}
         {isError && <div> {error.message} </div>}
         {/* filters */}
-        <RestroFilter
-          onfilterChange={(filterName, filterValue) => {
-            console.log(filterName, filterValue);
-          }}
-        >
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setOpenDrawer(true);
-            }}
-          >
-            Add Restoraunt
-          </Button>
-        </RestroFilter>
+        <Form form={filterForm} onFieldsChange={onFilterChange}>
+          <RestroFilter>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setOpenDrawer(true);
+              }}
+            >
+              Add Restoraunt
+            </Button>
+          </RestroFilter>
+        </Form>
         {/* Drawer */}
         <Drawer
           width={720}
           title="Create Restroraunt"
           onClose={() => {
+            restorauntForm.resetFields();
             setOpenDrawer(false);
           }}
           open={openDrawer}
           extra={
             <Space>
-              <Button> Cancel </Button>
-              <Button type="primary"> Submit </Button>
+              <Button
+                onClick={() => {
+                  // clear the fields
+                  restorauntForm.resetFields();
+
+                  // close the drawer
+                  setOpenDrawer(false);
+                }}
+              >
+                {" "}
+                Cancel{" "}
+              </Button>
+              <Button type="primary" onClick={onFormSubmit}>
+                {" "}
+                Submit{" "}
+              </Button>
             </Space>
           }
-        ></Drawer>
+          styles={{ body: { backgroundColor: colorBgLayout } }}
+        >
+          <Form layout="vertical" form={restorauntForm}>
+            <RestorauntForm />
+          </Form>
+        </Drawer>
         {/* table */}
         <Table dataSource={restoraunts} columns={columns} rowKey={"id"} />;
       </Space>

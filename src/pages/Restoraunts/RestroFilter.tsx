@@ -1,11 +1,10 @@
-import { Card, Col, Input, Row, Select } from "antd";
+import { Card, Col, Input, Row } from "antd";
 
 type RestroFilterProps = {
   children?: React.ReactNode;
-  onfilterChange: (filterName: string, filterValue: string) => void;
 };
 
-const RestroFilter = ({ children, onfilterChange }: RestroFilterProps) => {
+const RestroFilter = ({ children }: RestroFilterProps) => {
   return (
     <div>
       <Card>
@@ -17,38 +16,7 @@ const RestroFilter = ({ children, onfilterChange }: RestroFilterProps) => {
               <Col span={8}>
                 <Input.Search
                   placeholder="Search by restoraunt name"
-                  onChange={(e) =>
-                    onfilterChange("restroSearchQuery", e.target.value)
-                  }
                 />
-              </Col>
-              {/* name dropdown */}
-              <Col span={8}>
-                <Select
-                  placeholder="Restoraunt name"
-                  style={{ width: "100%" }}
-                  onChange={(selectedItem) => {
-                    onfilterChange("nameDropdown", selectedItem);
-                  }}
-                >
-                  <Select.Option value="sample">Sample</Select.Option>
-                  <Select.Option value="sample">Sample</Select.Option>
-                  <Select.Option value="sample">Sample</Select.Option>
-                </Select>
-              </Col>
-              {/* address dropdown */}
-              <Col span={8}>
-                <Select
-                  placeholder="Restoraunt Address"
-                  style={{ width: "100%" }}
-                  onChange={(selectedItem) => {
-                    onfilterChange("addressDropdown", selectedItem);
-                  }}
-                >
-                  <Select.Option value="sample">Sample</Select.Option>
-                  <Select.Option value="sample">Sample</Select.Option>
-                  <Select.Option value="sample">Sample</Select.Option>
-                </Select>
               </Col>
             </Row>
           </Col>

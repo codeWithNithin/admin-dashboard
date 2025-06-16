@@ -30,3 +30,9 @@ export type FieldData = {
   name: string[];
   value?: string;
 };
+
+
+export type CreateRestorauntData = {
+  name: string;
+  address: string;
+}
