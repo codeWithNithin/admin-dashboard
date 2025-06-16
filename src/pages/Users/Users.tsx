@@ -62,11 +62,7 @@ const columns = [
     dataIndex: "tenant",
     key: "tenant",
     render: (_text: string, record: User) => {
-      return (
-        <div>
-          {record.tenant.name}
-        </div>
-      );
+      return <div>{record.tenant.name}</div>;
     },
   },
 ];
@@ -146,7 +142,11 @@ const Users = () => {
     if ("q" in changedFilterFields) {
       debouncedQUpdate(changedFilterFields.q);
     } else {
-      setQueryParams({ ...queryParams, ...changedFilterFields });
+      setQueryParams({
+        ...queryParams,
+        ...changedFilterFields,
+        currentPage: 1,
+      });
     }
   };
 
@@ -230,6 +230,10 @@ const Users = () => {
             pageSize: queryParams.perPage,
             onChange: (page: number) => {
               setQueryParams({ ...queryParams, currentPage: page });
+            },
+            showTotal: (total: number, range: number[]) => {
+              console.log(total, range);
+              return `Showing ${range[0]}-${range[1]} of ${total} items`;
             },
           }}
         />
