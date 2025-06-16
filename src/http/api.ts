@@ -23,6 +23,8 @@ export const createUser = (params: CreateUserData) =>
   api.post("/users", params);
 
 // tenants or restoraunts
-export const getAllRestoraunts = () => api.get("/tenants");
+export const getAllRestoraunts = (queryString: string) =>
+  api.get(`/tenants/?${queryString}`);
+
 export const createRestoraunt = (params: CreateRestorauntData) =>
   api.post("/tenants", params);

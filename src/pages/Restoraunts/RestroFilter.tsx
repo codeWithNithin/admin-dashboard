@@ -1,4 +1,4 @@
-import { Card, Col, Input, Row } from "antd";
+import { Card, Col, Form, Input, Row } from "antd";
 
 type RestroFilterProps = {
   children?: React.ReactNode;
@@ -14,9 +14,12 @@ const RestroFilter = ({ children }: RestroFilterProps) => {
             <Row gutter={16}>
               {/* search filter */}
               <Col span={8}>
-                <Input.Search
-                  placeholder="Search by restoraunt name"
-                />
+                <Form.Item name="q">
+                  <Input.Search
+                    placeholder="Search by restoraunt name"
+                    allowClear={true}
+                  />
+                </Form.Item>
               </Col>
             </Row>
           </Col>

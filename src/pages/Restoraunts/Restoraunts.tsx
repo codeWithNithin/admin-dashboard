@@ -1,13 +1,33 @@
-import { Breadcrumb, Button, Drawer, Form, Space, Spin, Table, theme } from "antd";
-import { LoadingOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  Breadcrumb,
+  Button,
+  Drawer,
+  Form,
+  Space,
+  Spin,
+  Table,
+  theme,
+} from "antd";
+import {
+  LoadingOutlined,
+  PlusOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
+import {
+  keepPreviousData,
+  QueryClient,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import { createRestoraunt, getAllRestoraunts } from "../../http/api";
 import RestroFilter from "./RestroFilter";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuthStore } from "../../store";
 import { Navigate } from "react-router-dom";
 import RestorauntForm from "./forms/RestorauntForm";
-import type { CreateRestorauntData } from "../../types";
+import type { CreateRestorauntData, FieldData } from "../../types";
+import { PER_PAGE } from "../../constant";
+import { debounce } from "lodash";
 
 const columns = [
   {
@@ -34,10 +54,17 @@ const columns = [
 
 const Restoraunts = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [queryParams, setQueryParams] = useState({
+    currentPage: 1,
+    perPage: PER_PAGE,
+  });
+
   const { user } = useAuthStore();
 
   const [restorauntForm] = Form.useForm();
   const [filterForm] = Form.useForm();
+
+  const queryClient = new QueryClient();
 
   const {
     token: { colorBgLayout },
@@ -49,9 +76,18 @@ const Restoraunts = () => {
     error,
     isFetching,
   } = useQuery({
-    queryKey: ["tenants"],
-    queryFn: () => {
-      return getAllRestoraunts().then((res) => res.data);
+    queryKey: ["tenants", queryParams],
+    queryFn: async () => {
+      const filteredParams = Object.fromEntries(
+        Object.entries(queryParams).filter((item) => {
+          console.log("item in entries", item);
+          return !!item[1];
+        })
+      );
+      const queryString = new URLSearchParams(
+        filteredParams as unknown as Record<string, string>
+      ).toString();
+      return getAllRestoraunts(queryString).then((res) => res.data);
     },
     placeholderData: keepPreviousData,
   });
@@ -60,6 +96,9 @@ const Restoraunts = () => {
     mutationKey: ["createTenant"],
     mutationFn: async (data: CreateRestorauntData) => {
       return createRestoraunt(data).then((res) => res.data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
     },
   });
 
@@ -76,7 +115,37 @@ const Restoraunts = () => {
     setOpenDrawer(false);
   };
 
-  const onFilterChange = () => {};
+  const debouncedQUpdate = useMemo(() => {
+    return debounce((value: string | undefined) => {
+      setQueryParams((prev) => ({ ...prev, q: value, currentPage: 1 }));
+    }, 500);
+  }, []);
+
+  const onFilterChange = (fieldChanges: FieldData[]) => {
+    console.log("fieldChanges", fieldChanges);
+
+    // modify the fields into proper format
+    const changedFilterFields = fieldChanges
+      .map((item) => {
+        return {
+          [item.name[0]]: item.value,
+        };
+      })
+      .reduce((acc, item) => ({ ...acc, ...item }), {});
+
+    console.log("changedFilterFields", changedFilterFields);
+
+    if (changedFilterFields.q) {
+      // debounce logic
+      debouncedQUpdate(changedFilterFields.q);
+    } else {
+      setQueryParams({
+        ...queryParams,
+        ...changedFilterFields,
+        currentPage: 1,
+      });
+    }
+  };
 
   if (user?.role !== "admin") return <Navigate to="/" replace={true} />;
 
@@ -142,7 +211,23 @@ const Restoraunts = () => {
           </Form>
         </Drawer>
         {/* table */}
-        <Table dataSource={restoraunts} columns={columns} rowKey={"id"} />;
+        <Table
+          dataSource={restoraunts?.data}
+          columns={columns}
+          rowKey={"id"}
+          pagination={{
+            total: restoraunts?.count,
+            current: queryParams.currentPage,
+            pageSize: queryParams.perPage,
+            onChange: (page: number) => {
+              setQueryParams({ ...queryParams, currentPage: page });
+            },
+            showTotal: (total: number, range: number[]) => {
+              return `Showing ${range[0]}-${range[1]} of ${total} items`;
+            },
+          }}
+        />
+        ;
       </Space>
     </div>
   );
