@@ -58,9 +58,16 @@ const columns = [
     key: "role",
   },
   {
-    title: "Created at",
-    dataIndex: "createdAt",
-    key: "createdAt",
+    title: "Tenant",
+    dataIndex: "tenant",
+    key: "tenant",
+    render: (_text: string, record: User) => {
+      return (
+        <div>
+          {record.tenant.name}
+        </div>
+      );
+    },
   },
 ];
 
