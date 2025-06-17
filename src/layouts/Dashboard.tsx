@@ -89,7 +89,13 @@ const Dashboard = () => {
 
   const baseItems = getMenuItems(user?.role as string);
 
-  if (user === null) return <Navigate to="/auth/login" replace={true} />;
+  if (user === null)
+    return (
+      <Navigate
+        to={`/auth/login?returnTo=${location.pathname}`}
+        replace={true}
+      />
+    );
 
   return (
     <div>
