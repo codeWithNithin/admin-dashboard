@@ -46,11 +46,6 @@ const getMenuItems = (role: string) => {
       icon: <Icon component={GiftIcon} />,
       label: <NavLink to="/promos">Promos</NavLink>,
     },
-    {
-      key: "/restoraunts",
-      icon: <Icon component={foodIcon} />,
-      label: <NavLink to="/restoraunts">Restaurants</NavLink>,
-    },
   ];
 
   if (role === "admin") {
@@ -60,6 +55,12 @@ const getMenuItems = (role: string) => {
       key: "/users",
       icon: <Icon component={UserIcon} />,
       label: <NavLink to="/users">Users</NavLink>,
+    });
+
+    items.splice(2, 0, {
+      key: "/restoraunts",
+      icon: <Icon component={foodIcon} />,
+      label: <NavLink to="/restoraunts">Restaurants</NavLink>,
     });
 
     return items;
@@ -111,7 +112,7 @@ const Dashboard = () => {
           </div>
           <Menu
             theme="light"
-            defaultSelectedKeys={["/"]}
+            defaultSelectedKeys={[location.pathname]}
             mode="inline"
             items={baseItems}
           />
