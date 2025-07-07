@@ -20,11 +20,11 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createUser, getAllUsers } from "../../http/api";
+import { createUser, getAllUsers, updateUser } from "../../http/api";
 import type { CreateUserData, FieldData, User } from "../../types";
 import { useAuthStore } from "../../store";
 import UserFilters from "./UserFilters";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserForm from "./forms/UserForm";
 import { PER_PAGE } from "../../constant";
 import { debounce } from "lodash";
@@ -62,7 +62,7 @@ const columns = [
     dataIndex: "tenant",
     key: "tenant",
     render: (_text: string, record: User) => {
-      return <div>{record.tenant.name}</div>;
+      return <div>{record.tenant?.name}</div>;
     },
   },
 ];
@@ -70,8 +70,12 @@ const columns = [
 const Users = () => {
   const [form] = Form.useForm();
   const [filtersForm] = Form.useForm();
+
   const { user } = useAuthStore();
+
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [editUserData, setEditUserData] = useState<User | null>(null);
+
   const queryClient = useQueryClient();
   const [queryParams, setQueryParams] = useState({
     currentPage: 1,
@@ -81,6 +85,16 @@ const Users = () => {
   const {
     token: { colorBgLayout },
   } = theme.useToken();
+
+  useEffect(() => {
+    if (editUserData) {
+      setOpenDrawer(true);
+      form.setFieldsValue({
+        ...editUserData,
+        tenantId: editUserData?.tenant?.id,
+      });
+    }
+  }, [editUserData, form]);
 
   const {
     data: users,
@@ -113,13 +127,34 @@ const Users = () => {
     },
   });
 
+  const { mutate: updateUserMutate } = useMutation({
+    mutationKey: ["update-user"],
+    mutationFn: async (data: CreateUserData) =>
+      updateUser(data, String(editUserData!.id)).then((res) => res.data),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
+
   const onFormSubmit = async () => {
     // validate all the fields
     await form.validateFields();
-    userMutate(form.getFieldsValue());
+
+    const isEdit = !!editUserData;
+
+    if (isEdit) {
+      // updating
+      await updateUserMutate(form.getFieldsValue());
+    } else {
+      // creating
+      await userMutate(form.getFieldsValue());
+    }
+
     form.resetFields();
 
     setOpenDrawer(false);
+    setEditUserData(null);
   };
 
   const debouncedQUpdate = React.useMemo(() => {
@@ -183,7 +218,7 @@ const Users = () => {
         </Form>
 
         <Drawer
-          title="Create User"
+          title={editUserData ? "Edit User" : "Create User"}
           closable={{ "aria-label": "Close Button" }}
           open={openDrawer}
           destroyOnClose={true}
@@ -192,6 +227,7 @@ const Users = () => {
           onClose={() => {
             setOpenDrawer(false);
             form.resetFields();
+            setEditUserData(null);
           }}
           extra={
             <Space>
@@ -199,6 +235,7 @@ const Users = () => {
                 onClick={() => {
                   form.resetFields();
                   setOpenDrawer(false);
+                  setEditUserData(null);
                 }}
               >
                 {" "}
@@ -212,12 +249,33 @@ const Users = () => {
           }
         >
           <Form layout="vertical" form={form}>
-            <UserForm />
+            <UserForm isEdit={!!editUserData} />
           </Form>
         </Drawer>
 
         <Table
-          columns={columns}
+          columns={[
+            ...columns,
+            {
+              title: "Actions",
+              dataIndex: "actions",
+              render: (_: string, record: User) => {
+                return (
+                  <Space>
+                    <Button
+                      type="link"
+                      onClick={() => {
+                        setEditUserData(record);
+                      }}
+                    >
+                      {" "}
+                      Edit{" "}
+                    </Button>
+                  </Space>
+                );
+              },
+            },
+          ]}
           dataSource={users?.data}
           rowKey={"id"}
           pagination={{

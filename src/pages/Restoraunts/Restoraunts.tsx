@@ -15,17 +15,21 @@ import {
 } from "@ant-design/icons";
 import {
   keepPreviousData,
-  QueryClient,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
-import { createRestoraunt, getAllRestoraunts } from "../../http/api";
+import {
+  createRestoraunt,
+  getAllRestoraunts,
+  updateRestoraunt,
+} from "../../http/api";
 import RestroFilter from "./RestroFilter";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../../store";
 import { Navigate } from "react-router-dom";
 import RestorauntForm from "./forms/RestorauntForm";
-import type { CreateRestorauntData, FieldData } from "../../types";
+import type { CreateRestorauntData, FieldData, Tenant } from "../../types";
 import { PER_PAGE } from "../../constant";
 import { debounce } from "lodash";
 
@@ -59,16 +63,28 @@ const Restoraunts = () => {
     perPage: PER_PAGE,
   });
 
+  const [editRestorauntData, seteditRestorauntData] = useState<Tenant | null>(
+    null
+  );
+
   const { user } = useAuthStore();
 
   const [restorauntForm] = Form.useForm();
   const [filterForm] = Form.useForm();
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient()
 
   const {
     token: { colorBgLayout },
   } = theme.useToken();
+
+  useEffect(() => {
+    if (editRestorauntData) {
+      console.log("editRestoraunt", editRestorauntData);
+      setOpenDrawer(true);
+      restorauntForm.setFieldsValue(editRestorauntData);
+    }
+  }, [editRestorauntData, restorauntForm]);
 
   const {
     data: restoraunts,
@@ -80,7 +96,6 @@ const Restoraunts = () => {
     queryFn: async () => {
       const filteredParams = Object.fromEntries(
         Object.entries(queryParams).filter((item) => {
-          console.log("item in entries", item);
           return !!item[1];
         })
       );
@@ -92,27 +107,53 @@ const Restoraunts = () => {
     placeholderData: keepPreviousData,
   });
 
-  const { mutate: createUserMutate } = useMutation({
+  const { mutate: createTenantMutate } = useMutation({
     mutationKey: ["createTenant"],
     mutationFn: async (data: CreateRestorauntData) => {
       return createRestoraunt(data).then((res) => res.data);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["tenants"] });
     },
   });
 
+  const { mutate: updateRestorauntMutate } = useMutation({
+    mutationKey: ["update-restoraunt"],
+    mutationFn: async (data: CreateRestorauntData) => {
+      return updateRestoraunt(data, String(editRestorauntData!.id)).then(
+        (res) => res.data
+      );
+    },
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+    },
+  });
+
+  // updateRestoraunt
+
   const onFormSubmit = async () => {
     await restorauntForm.validateFields();
 
-    // call the data to api
-    createUserMutate(restorauntForm.getFieldsValue());
+    const isEdit = !!editRestorauntData;
+
+    console.log("isEdit", isEdit);
+
+    if (isEdit) {
+      // updating
+      await updateRestorauntMutate(restorauntForm.getFieldsValue());
+    } else {
+      // creating
+      await createTenantMutate(restorauntForm.getFieldsValue());
+    }
 
     // clear the fields
     restorauntForm.resetFields();
 
     // close the drawer
     setOpenDrawer(false);
+
+    // clear the edit resto data
+    seteditRestorauntData(null);
   };
 
   const debouncedQUpdate = useMemo(() => {
@@ -122,7 +163,7 @@ const Restoraunts = () => {
   }, []);
 
   const onFilterChange = (fieldChanges: FieldData[]) => {
-    console.log("fieldChanges", fieldChanges);
+    // console.log("fieldChanges", fieldChanges);
 
     // modify the fields into proper format
     const changedFilterFields = fieldChanges
@@ -181,6 +222,7 @@ const Restoraunts = () => {
           title="Create Restroraunt"
           onClose={() => {
             restorauntForm.resetFields();
+            seteditRestorauntData(null);
             setOpenDrawer(false);
           }}
           open={openDrawer}
@@ -193,6 +235,8 @@ const Restoraunts = () => {
 
                   // close the drawer
                   setOpenDrawer(false);
+
+                  seteditRestorauntData(null)
                 }}
               >
                 {" "}
@@ -213,7 +257,27 @@ const Restoraunts = () => {
         {/* table */}
         <Table
           dataSource={restoraunts?.data}
-          columns={columns}
+          columns={[
+            ...columns,
+            {
+              title: "Actions",
+              render: (_: string, record: Tenant) => {
+                return (
+                  <Space>
+                    <Button
+                      type="link"
+                      onClick={() => {
+                        seteditRestorauntData(record);
+                      }}
+                    >
+                      {" "}
+                      Edit{" "}
+                    </Button>
+                  </Space>
+                );
+              },
+            },
+          ]}
           rowKey={"id"}
           pagination={{
             total: restoraunts?.count,
