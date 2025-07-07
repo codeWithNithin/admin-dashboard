@@ -22,9 +22,17 @@ export const getAllUsers = (queryString: string) =>
 export const createUser = (params: CreateUserData) =>
   api.post("/users", params);
 
+export const updateUser = (params: CreateUserData, id: string) =>
+  api.patch(`/users/${id}`, params);
+
 // tenants or restoraunts
 export const getAllRestoraunts = (queryString: string) =>
   api.get(`/tenants/?${queryString}`);
 
 export const createRestoraunt = (params: CreateRestorauntData) =>
   api.post("/tenants", params);
+
+export const updateRestoraunt = (params: CreateRestorauntData, id: string) => {
+  console.log(params, id)
+   return api.patch(`/tenants/${id}`, params);
+}
