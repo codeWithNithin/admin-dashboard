@@ -45,7 +45,7 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
                 <Select
                   title="tenantId"
                   style={{ width: "100%" }}
-                  placeholder="=tenant"
+                  placeholder="tenant"
                   allowClear={true}
                 >
                   <Select.Option value="Pizza">Pizza hut</Select.Option>
