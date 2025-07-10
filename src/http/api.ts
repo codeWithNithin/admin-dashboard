@@ -8,7 +8,7 @@ import type {
 import { api } from "./client";
 
 export const authService = "/api/auth";
-// const catalogService = "/api/catalog";
+export const catalogService = "/api/catalog";
 
 // authentication
 export const login = (credentials: Credentials) =>
@@ -39,3 +39,7 @@ export const updateRestoraunt = (params: CreateRestorauntData, id: string) => {
   console.log(params, id);
   return api.patch(`${authService}/tenants/${id}`, params);
 };
+
+
+// CATALOG SERVICE
+export const getAllCategories = () => api.get(`${catalogService}/categories`);

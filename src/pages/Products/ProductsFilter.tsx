@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   Col,
@@ -10,6 +11,8 @@ import {
   Typography,
 } from "antd";
 import React from "react";
+import { getAllCategories, getAllRestoraunts } from "../../http/api";
+import type { Category, Tenant } from "../../types";
 
 type ProductFilterProps = {
   // onAddUserBtnClick: (openDrawer: boolean) => void;
@@ -17,6 +20,25 @@ type ProductFilterProps = {
 };
 
 const ProductsFilter = ({ children }: ProductFilterProps) => {
+  const { data: restoraunts } = useQuery({
+    queryKey: ["tenants"],
+    queryFn: () => {
+      return getAllRestoraunts(`perPage=100&curentPage=1`).then(
+        (res) => res.data
+      );
+    },
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => {
+      return getAllCategories().then((res) => {
+        console.log("res", res);
+        return res.data;
+      });
+    },
+  });
+
   return (
     <Card>
       <Row justify="space-between">
@@ -35,8 +57,13 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
                   placeholder="select Category"
                   allowClear={true}
                 >
-                  <Select.Option value="Pizza">Pizza</Select.Option>
-                  <Select.Option value="Beverages">Beverages</Select.Option>
+                  {categories?.data?.map((element: Category) => {
+                    return (
+                      <Select.Option key={element._id} value={element._id}>
+                        {element.name}
+                      </Select.Option>
+                    );
+                  })}
                 </Select>
               </Form.Item>
             </Col>
@@ -48,8 +75,13 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
                   placeholder="select tenant"
                   allowClear={true}
                 >
-                  <Select.Option value="Pizza">Pizza hut</Select.Option>
-                  <Select.Option value="Beverages">Burger King</Select.Option>
+                  {restoraunts?.data?.map((element: Tenant) => {
+                    return (
+                      <Select.Option key={element.id} value={element.id}>
+                        {element.name}
+                      </Select.Option>
+                    );
+                  })}
                 </Select>
               </Form.Item>
             </Col>

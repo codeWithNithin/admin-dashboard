@@ -36,3 +36,8 @@ export type CreateRestorauntData = {
   name: string;
   address: string;
 }
+
+export type Category = { 
+  _id: string;
+  name: string
+}
