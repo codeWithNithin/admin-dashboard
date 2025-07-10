@@ -40,6 +40,11 @@ export const updateRestoraunt = (params: CreateRestorauntData, id: string) => {
   return api.patch(`${authService}/tenants/${id}`, params);
 };
 
-
 // CATALOG SERVICE
+
+// Categories
 export const getAllCategories = () => api.get(`${catalogService}/categories`);
+
+// Products
+export const getAllProducts = (queryString: string) =>
+  api.get(`${catalogService}/products?${queryString}`);

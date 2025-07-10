@@ -13,6 +13,7 @@ import {
 import React from "react";
 import { getAllCategories, getAllRestoraunts } from "../../http/api";
 import type { Category, Tenant } from "../../types";
+import { useAuthStore } from "../../store";
 
 type ProductFilterProps = {
   // onAddUserBtnClick: (openDrawer: boolean) => void;
@@ -20,6 +21,9 @@ type ProductFilterProps = {
 };
 
 const ProductsFilter = ({ children }: ProductFilterProps) => {
+
+  const {user} = useAuthStore();
+
   const { data: restoraunts } = useQuery({
     queryKey: ["tenants"],
     queryFn: () => {
@@ -33,7 +37,6 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
     queryKey: ["categories"],
     queryFn: () => {
       return getAllCategories().then((res) => {
-        console.log("res", res);
         return res.data;
       });
     },
@@ -67,24 +70,27 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <Form.Item name="tenantId">
-                <Select
-                  title="tenantId"
-                  style={{ width: "100%" }}
-                  placeholder="select tenant"
-                  allowClear={true}
-                >
-                  {restoraunts?.data?.map((element: Tenant) => {
-                    return (
-                      <Select.Option key={element.id} value={element.id}>
-                        {element.name}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
-            </Col>
+
+            {user?.role === "admin" && (
+              <Col span={6}>
+                <Form.Item name="tenantId">
+                  <Select
+                    title="tenantId"
+                    style={{ width: "100%" }}
+                    placeholder="select tenant"
+                    allowClear={true}
+                  >
+                    {restoraunts?.data?.map((element: Tenant) => {
+                      return (
+                        <Select.Option key={element.id} value={element.id}>
+                          {element.name}
+                        </Select.Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+              </Col>
+            )}
             <Col span={6}>
               <Space>
                 <Form.Item name="isPublish">

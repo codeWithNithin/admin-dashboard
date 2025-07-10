@@ -1,7 +1,6 @@
 import { Card, Col, Form, Input, Row, Select } from "antd";
 
 type UserFilterProps = {
-  // onAddUserBtnClick: (openDrawer: boolean) => void;
   children?: React.ReactNode;
 };
 

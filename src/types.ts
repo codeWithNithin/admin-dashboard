@@ -9,7 +9,7 @@ export type User = {
   createdAt: string;
   firstName: string;
   lastName: string;
-  tenant: Tenant
+  tenant: Tenant;
 };
 
 export type Tenant = {
@@ -31,13 +31,22 @@ export type FieldData = {
   value?: string;
 };
 
-
 export type CreateRestorauntData = {
   name: string;
   address: string;
-}
+};
 
-export type Category = { 
+export type Category = {
   _id: string;
-  name: string
-}
+  name: string;
+};
+
+export type Product = {
+  _id: string;
+  name: string;
+  url: string;
+  description: string;
+  isPublish: boolean;
+  createdAt: string;
+  category: Category;
+};
