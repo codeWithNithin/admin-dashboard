@@ -7,32 +7,35 @@ import type {
 } from "../types";
 import { api } from "./client";
 
+export const authService = "/api/auth";
+// const catalogService = "/api/catalog";
+
 // authentication
 export const login = (credentials: Credentials) =>
-  api.post("/auth/login", credentials);
+  api.post(`${authService}/auth/login`, credentials);
 
-export const self = () => api.get("/auth/self");
+export const self = () => api.get(`${authService}/auth/self`);
 
-export const logout = () => api.post("/auth/logout");
+export const logout = () => api.post(`${authService}/auth/logout`);
 
 // users
 export const getAllUsers = (queryString: string) =>
-  api.get(`/users?${queryString}`);
+  api.get(`${authService}/users?${queryString}`);
 
 export const createUser = (params: CreateUserData) =>
-  api.post("/users", params);
+  api.post(`${authService}/users`, params);
 
 export const updateUser = (params: CreateUserData, id: string) =>
-  api.patch(`/users/${id}`, params);
+  api.patch(`${authService}/users/${id}`, params);
 
 // tenants or restoraunts
 export const getAllRestoraunts = (queryString: string) =>
-  api.get(`/tenants/?${queryString}`);
+  api.get(`${authService}/tenants/?${queryString}`);
 
 export const createRestoraunt = (params: CreateRestorauntData) =>
-  api.post("/tenants", params);
+  api.post(`${authService}/tenants`, params);
 
 export const updateRestoraunt = (params: CreateRestorauntData, id: string) => {
-  console.log(params, id)
-   return api.patch(`/tenants/${id}`, params);
-}
+  console.log(params, id);
+  return api.patch(`${authService}/tenants/${id}`, params);
+};
