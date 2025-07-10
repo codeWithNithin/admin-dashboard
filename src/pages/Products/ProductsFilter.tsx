@@ -32,7 +32,7 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
                 <Select
                   title="categoryId"
                   style={{ width: "100%" }}
-                  placeholder="Category"
+                  placeholder="select Category"
                   allowClear={true}
                 >
                   <Select.Option value="Pizza">Pizza</Select.Option>
@@ -45,7 +45,7 @@ const ProductsFilter = ({ children }: ProductFilterProps) => {
                 <Select
                   title="tenantId"
                   style={{ width: "100%" }}
-                  placeholder="tenant"
+                  placeholder="select tenant"
                   allowClear={true}
                 >
                   <Select.Option value="Pizza">Pizza hut</Select.Option>
